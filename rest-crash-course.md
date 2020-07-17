@@ -1,4 +1,6 @@
+
 # REST
+
 Representational State Transfer 
 
 An architectural style to transfer State by its representation from one Machine to another.
@@ -11,14 +13,16 @@ Each Client Server interaction consists of both
 - a Request which the Client sends to the Server 
 - and after that a Response the Server answers back to the Client.
 
-```java
->>> Request:
+> ⚠ The Request Model does not have to be the same as the Response Model!
+
+```
+Request:
 <Initializing Line> 
 <Many Lines of Request Headers>
 
 <Sometimes a Request Body e.g. JSON to represent the transfered State>
-
-<<< Response:
+----------------------------------------------------------------------
+Response:
 <Initializing Line> 
 <Many Lines of Response Headers>
 
@@ -26,16 +30,14 @@ Each Client Server interaction consists of both
 ```
 
 A real Example:
-```java
->>>
+```
 GET / HTTP/1.1
 Accept: */*
 Accept-Encoding: gzip, deflate
 Connection: keep-alive
 Host: www.google.at
 User-Agent: HTTPie/1.0.3
-
-<<<
+----------------------------------------------------------------------
 HTTP/1.1 200 OK
 Cache-Control: private, max-age=0
 Content-Encoding: gzip
@@ -55,7 +57,7 @@ Such information is called Session State and is handled entirely on the client s
 The same is true for authentication, which should not be stored in a session.
 Instead each request should come with a credential that will be validated by the server.
 
-### Why?
+### Motivation behind it
 No hidden State means full Transparency which helps understand a servers behaviour and reproduce bugs.
 Interactions become Reliable, Repeatable and easily Testable.
 Just like a pure function. Yes, the web is inherently Functional.
@@ -71,8 +73,7 @@ Developed by Leonard Richardson
 ### Level 0: Just use HTTP for remote interactions, often to a single endpoint.
 E.g.: A POST request with some data to invoke a remote procedure.
 
-```java
->>> 
+```
 POST http://hsp.com/api
 {
 	"action": "createClass",
@@ -82,22 +83,19 @@ POST http://hsp.com/api
 		"room": 123
 	}
 }
-
-<<< 
+----------------------------------------------------------------------
 200 OK
 {
     "success": true
 }
 ```
 
-
 ### Level 1: Resources
 Resources are identified by their URI (Uniform Resource Identifier)
 
 E.g.: 
 
-```java
->>> 
+```
 POST http://hsp.com/api/classes
 {
 	"action": "create",
@@ -107,8 +105,7 @@ POST http://hsp.com/api/classes
         "room": 123
 	}
 }
-
-<<< 
+----------------------------------------------------------------------
 200 OK
 ```
 
@@ -117,14 +114,12 @@ You can think of the Structure of Resources as Folders in a File System.
 
 We can access a single Entity by providing an id.
 
-```java
->>> 
+```
 POST http://hsp.com/api/classes/4A
 {
 	"action": "read",
 }
-
-<<< 
+----------------------------------------------------------------------
 200 OK
 "content": {
 	"id": "4A",
@@ -134,14 +129,12 @@ POST http://hsp.com/api/classes/4A
 ```
 
 Resources can be nested. Just like Folders in a File System.
-```java
->>> 
+```
 POST http://hsp.com/api/classes/4A/students
 {
     "action": "read",
 }
-
-<<< 
+----------------------------------------------------------------------
 200 OK
 ["Markus", "Susan", "Peter"]
 ```
@@ -154,11 +147,9 @@ GET, POST, PUT, PATCH, DELETE, HEAD, ...
 
 Notice the empty body
 
-```java
->>> 
+```
 GET http://hsp.com/api/classes/4A
-
-<<< 
+----------------------------------------------------------------------
 200 OK
 {
     "id": "4A",
@@ -168,11 +159,9 @@ GET http://hsp.com/api/classes/4A
 ```
 
 Use Query Parameters to filter a Collection
-```java
->>> 
+```
 GET http://hsp.com/api/classes?teacher=Max
-
-<<< 
+----------------------------------------------------------------------
 200 OK
 [
     {
@@ -189,37 +178,32 @@ GET http://hsp.com/api/classes?teacher=Max
 Used for create or update. Advantage over POST: idempotency.
 We can send the following request multiple times, and it will have the same effect as sending it a single time.
 
-```java
->>> 
+```
 PUT http://hsp.com/api/classes/4A
 {
     "teacher": "Max",
     "room": 123
 }
-
-<<< 
+----------------------------------------------------------------------
 204 No Content
 ```
 Notice how the Response Body is empty. 
 We can use 204 whenever a Body is superfluous.
 
 #### POST to add a new entity to a collection
-```java
->>> 
+```
 POST http://hsp.com/api/rooms
 {
     "size": 40
 }
-
-<<< 
+----------------------------------------------------------------------
 201 Created
 Location http://hsp.com/api/rooms/1
 ```
 Notice how the server created the rooms id and responds with the created URI.
 Body is empty in this case.
 We could also return a body like this:
-```java
-<<< 
+```
 200 Ok
 {
     "id": 1
@@ -229,10 +213,9 @@ We could also return a body like this:
 Warning: Not Idempotent! Executing this Request several Times will create as much rooms.
 
 #### DELETE to delete an entity
-```java
->>> 
+```
 DELETE http://hsp.com/api/rooms/1
-
+----------------------------------------------------------------------
 204 No Content
 ```
 This is idempotent, too.
@@ -241,14 +224,12 @@ This is idempotent, too.
 
 Use it to only change the given fields, and leave all others the same.
 
-```java
->>> 
+```
 PATCH http://hsp.com/api/classes/4A
 {
     "teacher": "Peter"
 }
-
-<<< 
+----------------------------------------------------------------------
 200 Ok
 {
     "teacher": "Peter",
@@ -267,11 +248,9 @@ Also we may model state machines using Links, and provide a client with availabl
 
 Adds a technical challenge. ROI not given in a small-scale project where server and client is owned by a single company.
 
-```java
->>>
+```
 GET http://hsp.com/api/classes
-
-<<<
+----------------------------------------------------------------------
 200 Ok
 [
     {
@@ -285,11 +264,9 @@ GET http://hsp.com/api/classes
 ```
 
 Using complete URIs as links allows the server to even change the Domain without the Client having to change at all.
-```java
->>>
+```
 GET http://hsp.com/api/classes
-
-<<<
+----------------------------------------------------------------------
 200 Ok
 [
     {
@@ -303,36 +280,82 @@ GET http://hsp.com/api/classes
 ```
 
 ## HTTP Status Codes
-2xx Success
-3xx Redirection
-4xx Error, Client fucked up
-5xx Error, Server fucked up
+- 2xx Success
+- 3xx Redirection
+- 4xx Error, Client fucked up
+- 5xx Error, Server fucked up
 
+## Content Negotiation
+State can be represented in many formats, JSON is just one of them.
+Tree-Based Data Structures are commonly represented using JSON or XML.
+CSV works nicely for simple lists.
 
-TBD Caching
-TBD Content Negotiation
-TBD Internet Robustness Principle
+A Client may tell the server which MIME-Types it Accepts using the `Accept` header.
+```
+GET http://www.google.com
+Accept: text/html, application/xhtml+xml
+```
 
-## How to enable safe API Change
-First of all, you want to make the participating Machines Robust to API change by following the Robustness Principle which states:
-> Be conservative in sending stuff, but liberal in receiving it.
+The Server may choose one of the accepted formats and use it
+```
+200 OK
+Content-Type: text/html
 
-Then you may choose a API Change Strategy
+<html><head>Some Header</head><body> ...
+```
 
-### API Change Strategies
+It's not uncommon for an API to support multiple formats for a single Resource.
+Even when its usually transfered as JSON, we may create a PDF Representation for printing or XLS to enable calculations.
 
-#### API Versioning
+## HTTP Caching
+One of HTTP's greatest features is its caching.
+
+### Expiration
+A Server may tell a client when a downloaded State expires by providing an `Expires` header
+```
+Expires: Wed, 21 Oct 2021 07:30:00 GMT
+```
+The Client may now reuse this result to avoid repeated requests to the same Resource.
+
+### If-Modified-Since
+A Client may tell a Server: "Hey, i already have this Resource downloaded. So, only send it back if it hasn't changed in the meantime". 
+This is done providing the `If-Modified-Since` Request Header.
+```
+If-Modified-Since: Wed, 21 Oct 2021 07:30:00 GMT
+```
+The Server will then answer with Status `304 Not Modified` and an empty body when it hasn't changed in that time.
+
+### ETag
+A Server may add an `ETag` header to a Response, usually a hash code that identifies the current State.
+```
+ETag: "33a64df551425fcc55e4d42a148795d9f25f89d4"
+```
+The Client may then use the `If-None-Match` header to ask whether the State has changed in the meantime.
+
+```
+If-None-Match: "33a64df551425fcc55e4d42a148795d9f25f89d4"
+```
+And if it hasn't, the Server will answer with an empty body and a Status of `304 Not Modified`
+
+## Enabling Safe API Change
+First of all, you want to make the participating Machines Robust to API change by following the Robustness Principle.
+
+> ⚠️ Be conservative in sending stuff, but liberal in receiving it.
+
+Then you may choose an API Change Strategy
+
+### API Versioning
 Every non-compatible change creates a new Version through URI Path (e.g. /api/V1) or Content-Type (e.g. application/vnd.v1+json).
 Fits best when you have lots of clients (e.g. Google Maps API).
 May use a schema like OpenAPI.
 Downside: You have to maintain all those versions.
 
-#### Consumer Driven Contracts
+### Consumer Driven Contracts
 Every Client defines their Interactions in the Form of Contracts, which are used to verify both the Servers and the Clients behaviour in isolation and check whether they can communicate.
 Works best in MicroService and MacroService Architectures as there are reasonable amounts of services developed by different teams that can be integrated this way.
 Is a no-schema approach.
 
-#### Just Change It
+### Just Change It
 Simplest and preferable solution. 
 Fits best when you own both the Server and the Client within the same Development Team.
 Can use a schema, but don't have to.
@@ -341,20 +364,134 @@ May use Parallel Change If Server and Client are independently deployed.
 
 
 ## Tooling
-### Browser Plugin: JSON View
-https://chrome.google.com/webstore/detail/jsonview/chklaanhfefbnpoihckbnefhakgolnmc
-### Browsers Network Tab
-### Curl
-### HTTPie
-https://httpie.org/
+### Clients
 
-### IntelliJ HTTP Scratch Files
-### Postman
-### Swagger (now OpenAPI)
+#### Curl
+
+The Classic Command Line Client. Not recommended - use HTTPie instead.
+
+#### HTTPie ([httpie.org](https://httpie.org/))
+
+Great HTTP Command Line Client. Very Intuitive.
+
+#### IntelliJ HTTP Scratch Files
+
+My Personal Favourite. Can use JavaScript to store Client State like OAuth Token between Requests. Commit `*.http` files with the Code. 
+
+#### Postman API Client ([postman.com](https://www.postman.com/))
+
+Makes it easy to manage Collection of Requests. Allows to send Requests on behalf of a Browser that may have Logon Cookies.
+
+#### RestTemplate
+
+Java Class in the Spring Ecosystem to make HTTP Requests.
+
+#### WebClient
+
+The Little Async Brother of RestTemplate.
+
+#### Browser and its Network Tab (F12)
+
+### Documentation
+
+#### Swagger UI ([swagger.io/tools/swagger-ui](https://swagger.io/tools/swagger-ui/))
+
 Documents an API, and provies a UI to try it out.
-!Careful! It's a schema. You may not want a schema depending on what your versioning strategy is.
-### JSONPath
+Swagger is basically a schema.
 
-### JQ
+#### SpringFox ([springfox.github.io/springfox](https://springfox.github.io/springfox/))
+
+Automated JSON API documentation for API's built with Spring. Uses Swagger UI.
+
+#### Spring REST Docs
+
+https://spring.io/projects/spring-restdocs
+
+Generate Documentation out of your MockMvc Tests.
+
+### JSON Related
+
+#### Browser Plugin: [JSON View](https://chrome.google.com/webstore/detail/jsonview/chklaanhfefbnpoihckbnefhakgolnmc)
+
+There are others as well.
+
+#### JSONPath
+
+XPath for JSON
+
+https://github.com/json-path/JsonPath
+
+https://jsonpath.com/
+
+#### JQ
+
 https://stedolan.github.io/jq/
-https://jqplay.org/
+
+A handy CLI JSON Processor to read JSON like XPath reads XML. To try it online: https://jqplay.org/
+
+#### Online JSON Formatters & Validators
+
+https://jsonlint.com/
+
+https://jsonformatter.org/
+
+#### JSON-LD ([json-ld.org](https://json-ld.org/))
+
+A Standard for Hypermedia JSON APIs
+
+### Web Frameworks
+
+#### Spring
+
+- spring-web
+- spring-webflux
+- spring-hateoas
+- spring-data-rest
+
+#### vertx ([vertx.io](https://vertx.io/))
+
+A reactive Java Framework.
+
+#### spark ([sparkjava.com](http://sparkjava.com/))
+
+Popular Java Micro Web Framework.
+
+https://www.baeldung.com/spark-framework-rest-api
+
+#### javalin ([javalin.io](https://javalin.io/))
+
+Lightweight web framework for Java and Kotlin.
+
+### Testing
+
+#### HTTP Test Doubles
+
+##### WireMock ([wiremock.org](http://wiremock.org/))
+
+Popular Java HTTP Mocking/Stubbing/Spying Tool.
+
+##### MockServer ([mock-server.com](https://www.mock-server.com/))
+
+Another Java HTTP Mocking Tool.
+
+##### sinon.js ([sinonjs.org](https://sinonjs.org/how-to/))
+
+A Test Double Tool for JavaScript. Not specifically for HTTP, but allows to stub or spy on HTTP Requests.
+
+#### Testing HTTP Services
+
+##### REST Assured ([rest-assured.io](http://rest-assured.io/))
+
+Java REST Services Testing Tool that provides a fluent API. Alternative to Springs MockMvc.
+
+#### Contract Testing
+
+##### PACT ([pact.io](https://pact.io/))
+
+Polyglot Contract Testing Tool. Open Source, Free To Use, De-facto Standard.
+
+##### Spring Cloud Contract
+
+https://spring.io/projects/spring-cloud-contract
+
+Similar to Pact, specifically for the Spring World
