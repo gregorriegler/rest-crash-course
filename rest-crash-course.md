@@ -3,7 +3,7 @@
 
 Representational State Transfer 
 
-An architectural style to transfer State by its representation from one Machine to another.
+An architectural style to transfer State by its representation from one Machine to another in a Distributed System.
 Developed 1994-2000 by Roy Fielding. 
 Idea of RESTful much younger ~2014, but mostly misunderstood.
 
@@ -21,7 +21,7 @@ Request:
 <Many Lines of Request Headers>
 
 <Sometimes a Request Body e.g. JSON to represent the transfered State>
-----------------------------------------------------------------------
+------------------------------
 Response:
 <Initializing Line> 
 <Many Lines of Response Headers>
@@ -37,7 +37,7 @@ Accept-Encoding: gzip, deflate
 Connection: keep-alive
 Host: www.google.at
 User-Agent: HTTPie/1.0.3
-----------------------------------------------------------------------
+------------------------------
 HTTP/1.1 200 OK
 Cache-Control: private, max-age=0
 Content-Encoding: gzip
@@ -70,8 +70,8 @@ Removes complexity from the Server, less bugfoots (A bug seen once but never aga
 ## Richardson Maturity Model
 Developed by Leonard Richardson
 
-### Level 0: Just use HTTP for remote interactions, often to a single endpoint.
-E.g.: A POST request with some data to invoke a remote procedure.
+### Level 0: Call remote functions via a single HTTP Entry point
+Could look similar to this: A POST request with some data to invoke a remote procedure.
 
 ```
 POST http://hsp.com/api
@@ -83,34 +83,47 @@ POST http://hsp.com/api
 		"room": 123
 	}
 }
-----------------------------------------------------------------------
+------------------------------
 200 OK
 {
     "success": true
 }
 ```
 
-### Level 1: Resources
-Resources are identified by their URI (Uniform Resource Identifier)
+Even though a single entry point is disadvantageous (Single Point of Failure), it does not necessarily mean it's a bad thing. 
+Many well defined Protocols are based on this idea: SOAP, RPC, GraphQL.
+Some Teams just don't know any better and go on to invent their own proprietary Standards on top of this Idea, then claiming to build REST Services.
+This is not recommended. You want to either take the REST Path, or choose an existing Protocol like one of the above. 
+This will make things easier for you and  the users of your API.
+
+### Level 1: Use Resources
+
+Resources are identified by their URI (Uniform Resource Identifier). 
+
+> URL (Uniform Resource Locator) is just a subtype of URI that includes the protocols http(s), ftp, mailto, file and others. 
+> In a HTTP Context it's safe to use the terms URI and URL interchangeably.
+
+Resources are nouns and usually named in plural as they represent a collection of entities.
 
 E.g.: 
 
 ```
 POST http://hsp.com/api/classes
 {
-	"action": "create",
-	"content": {
-		"id": "4A",
-		"teacher": "Max",
-        "room": 123
-	}
+	"action": "read",
+	"content": [
+		{
+			"id": "4A",
+			"teacher": "Max",
+        	"room": 123
+		}
+	]
 }
-----------------------------------------------------------------------
+------------------------------
 200 OK
 ```
 
-Resources are nouns and usually named in plural as they represent a collection of entities.
-You can think of the Structure of Resources as Folders in a File System.
+It's easy to imagine Resources as if they were Folders in a File System.
 
 We can access a single Entity by providing an id.
 
@@ -119,7 +132,7 @@ POST http://hsp.com/api/classes/4A
 {
 	"action": "read",
 }
-----------------------------------------------------------------------
+------------------------------
 200 OK
 "content": {
 	"id": "4A",
@@ -128,28 +141,30 @@ POST http://hsp.com/api/classes/4A
 }
 ```
 
-Resources can be nested. Just like Folders in a File System.
+Resources may be nested.
 ```
 POST http://hsp.com/api/classes/4A/students
 {
     "action": "read",
 }
-----------------------------------------------------------------------
+------------------------------
 200 OK
 ["Markus", "Susan", "Peter"]
 ```
 
-### Level 2: HTTP Methods
+### Level 2: Use HTTP Methods
 Instead of only doing POST, we can utilize other Methods as well.
 GET, POST, PUT, PATCH, DELETE, HEAD, ...
 
 #### GET for reading
 
+> ☑ save - ☑ cache-able - ☑ idempotent
+
 Notice the empty body
 
 ```
 GET http://hsp.com/api/classes/4A
-----------------------------------------------------------------------
+------------------------------
 200 OK
 {
     "id": "4A",
@@ -161,7 +176,7 @@ GET http://hsp.com/api/classes/4A
 Use Query Parameters to filter a Collection
 ```
 GET http://hsp.com/api/classes?teacher=Max
-----------------------------------------------------------------------
+------------------------------
 200 OK
 [
     {
@@ -174,9 +189,11 @@ GET http://hsp.com/api/classes?teacher=Max
 
 #### PUT for changing state on the server
 
-"Store the supplied entity under the given URI"
-Used for create or update. Advantage over POST: idempotency.
-We can send the following request multiple times, and it will have the same effect as sending it a single time.
+> ☐ save - ☐ cache-able - ☑ idempotent
+
+Stores the supplied entity under the given URI.
+Used for create or update. In case of create, it's the Client who defines the Id.
+Advantage over POST: It's Idempotent, meaning we can send the request multiple times while having the same effect as if we were sending it a single time.
 
 ```
 PUT http://hsp.com/api/classes/4A
@@ -184,25 +201,31 @@ PUT http://hsp.com/api/classes/4A
     "teacher": "Max",
     "room": 123
 }
-----------------------------------------------------------------------
+------------------------------
 204 No Content
 ```
-Notice how the Response Body is empty. 
+Notice how the Response Body is empty.
 We can use 204 whenever a Body is superfluous.
 
 #### POST to add a new entity to a collection
+
+> ☐ save - ☐ cache-able - ☐ idempotent
+
 ```
 POST http://hsp.com/api/rooms
 {
     "size": 40
 }
-----------------------------------------------------------------------
+------------------------------
 201 Created
 Location http://hsp.com/api/rooms/1
 ```
-Notice how the server created the rooms id and responds with the created URI.
+Executing this Request several Times will create as much rooms.
+Notice how the server created the rooms id and responds with the created URI. 
+The Server tells the Client where it stored the Entity.
 Body is empty in this case.
-We could also return a body like this:
+Another Style would be to return a body.
+
 ```
 200 Ok
 {
@@ -210,17 +233,18 @@ We could also return a body like this:
     "size": 40
 }
 ```
-Warning: Not Idempotent! Executing this Request several Times will create as much rooms.
-
 #### DELETE to delete an entity
+
+> ☐ save - ☐ cache-able - ☑ idempotent
+
 ```
 DELETE http://hsp.com/api/rooms/1
-----------------------------------------------------------------------
+------------------------------
 204 No Content
 ```
-This is idempotent, too.
-
 #### PATCH for partial updates
+
+> ☐ save - ☐ cache-able - ☐ idempotent
 
 Use it to only change the given fields, and leave all others the same.
 
@@ -229,7 +253,7 @@ PATCH http://hsp.com/api/classes/4A
 {
     "teacher": "Peter"
 }
-----------------------------------------------------------------------
+------------------------------
 200 Ok
 {
     "teacher": "Peter",
@@ -237,27 +261,50 @@ PATCH http://hsp.com/api/classes/4A
 }
 ```
 
-### Level 3: Hypermedia
-Also called HATEOAS (Hypermedia as the engine of application state).
-Use URIs instead of ids like we did previously.
-Generation of URIS moves from the Client to the Server.
-The goal is that the Client starts with a single URL, the Root Resource, from where it can discover all existing resources and their URIs, and doesn't have to build a single URI itself.
-The Client becomes more decoupled from the Server. 
-It does not have to change when an URI changes.
-Also we may model state machines using Links, and provide a client with available actions.
+PATCH is pretty popular these days.
+Probably because of its flexibility, and the ability to send only the parts that are needed.
 
-Adds a technical challenge. ROI not given in a small-scale project where server and client is owned by a single company.
+But it has 3 important disadvantages to PUT:
+
+- It is not uniformly defined. There are many different implementations of PATCH, leaving a Client with confusion.
+- Even though you may design it in an idempotent way, it's not so by definition. Intermediaries will treat it like it's not, leaving you without any advantage.
+- It typically creates unnecessary complexity in the code, as you have to interact with the State field-wise.
+
+Imo PATCH is not really RESTful and mostly premature optimization. 
+Use it only when the content is huge and you cannot reasonably split it to more than one Resource, leaving you with poor PUT performance. 
+Otherwise use PUT.
+
+> PATCH was something I created for the initial HTTP/1.1 proposal because partial PUT is never RESTful. ;-)
+>
+> ~ Roy Fielding
+
+Achieving Level 2 is already pretty Good. It's not yet really REST or RESTful though. It's rather RESTish or just an HTTP JSON API.
+
+### Level 3: Hypermedia
+
+Also called HATEOAS (**H**ypermedia **A**s **T**he **E**ngine **O**f **A**pplication **S**tate).
+
+Means Resources are not identified by their Id, but by their URIs, and we use those URIs inside Contents (Hyperlinks), to guide a Client through the API, its Resources and capabilities. The Goal is to have discover-ability of the complete API through Hyperlinks. The Client will start with a single URI pointing to a Root Resource and discover other Resources from there.
+
+As a result the Client does not have to construct URIs anymore, decoupling it further from the Server. 
+The Client does not have to change when an URI changes - it will just use the new URI that it retrieved from the Server.
+
+This even allows us to model State Machines with discoverable capability in our API.
+
+> ⚠️ Adds a technical challenge. ROI might not be given in a small-scale project where server and client is owned by the same organization.
 
 ```
 GET http://hsp.com/api/classes
-----------------------------------------------------------------------
+------------------------------
 200 Ok
 [
     {
         "teacher": "Max",
-        "room": 123,
+        "room": "Number 123",
         "links": {
-            "class": "/api/classes/4A"
+            "class": "/api/classes/4A",
+            "room": "/api/rooms/123",
+            "teacher": "/api/teachers/52323"
         }
     }
 ]
@@ -266,37 +313,54 @@ GET http://hsp.com/api/classes
 Using complete URIs as links allows the server to even change the Domain without the Client having to change at all.
 ```
 GET http://hsp.com/api/classes
-----------------------------------------------------------------------
+------------------------------
 200 Ok
 [
     {
         "teacher": "Max",
         "room": 123,
         "links": {
-            "class": "http://hsp.com/api/classes/4A"
+            "class": "http://hsp.com/api/classes/4A",
+            "room": "http://hsp.com/api/rooms/123",
+            "teacher": "http://hsp.com/api/teachers/52323"
         }
     }
 ]
 ```
 
-## HTTP Status Codes
-- 2xx Success
-- 3xx Redirection
-- 4xx Error, Client fucked up
-- 5xx Error, Server fucked up
+## Common HTTP Status Codes
+- **2xx Success**
+  - 200 OK
+  - 201 Created
+  - 204 No Content
+- **3xx Redirection**
+  - 301 Moved Permanently
+  - 303 See Other (Call Location with GET)
+  - 304 Not Modified (Use Cache)
+- **4xx Error, Client fucked up**
+  - 400 Bad Request
+  - 401 Unauthorized (Not Authenticated)
+  - 403 Forbidden (Authenticated, but not Authorized)
+  - 404 Not Found
+  - 405 Method Not Allowed
+  - 406 Not Acceptable
+  - 418 I'm a teapot 😁
+- **5xx Error, Server fucked up**
+  - 500 Internal Server Error
+  - 503 Service Unavailable
 
 ## Content Negotiation
 State can be represented in many formats, JSON is just one of them.
 Tree-Based Data Structures are commonly represented using JSON or XML.
 CSV works nicely for simple lists.
 
-A Client may tell the server which MIME-Types it Accepts using the `Accept` header.
+A Client may tell the Server which MIME-Types it Accepts using the `Accept` header.
 ```
 GET http://www.google.com
 Accept: text/html, application/xhtml+xml
 ```
 
-The Server may choose one of the accepted formats and use it
+The Server may then choose one of the accepted formats and use it to send the Content.
 ```
 200 OK
 Content-Type: text/html
@@ -304,14 +368,16 @@ Content-Type: text/html
 <html><head>Some Header</head><body> ...
 ```
 
+Or, when a Server does not Support any of the Accepted MIME-Types, it may answer with a Status Code: 406 Not Acceptable.
+
 It's not uncommon for an API to support multiple formats for a single Resource.
-Even when its usually transfered as JSON, we may create a PDF Representation for printing or XLS to enable calculations.
+Even when its usually transfered as JSON, we may also create a PDF Representation for printing or XLS to enable a user to make manual calculations.
 
 ## HTTP Caching
-One of HTTP's greatest features is its caching.
+One of HTTPs greatest strength is its caching.
 
 ### Expiration
-A Server may tell a client when a downloaded State expires by providing an `Expires` header
+A Server may tell a client when a downloaded State expires by providing an `Expires` header.
 ```
 Expires: Wed, 21 Oct 2021 07:30:00 GMT
 ```
@@ -320,6 +386,7 @@ The Client may now reuse this result to avoid repeated requests to the same Reso
 ### If-Modified-Since
 A Client may tell a Server: "Hey, i already have this Resource downloaded. So, only send it back if it hasn't changed in the meantime". 
 This is done providing the `If-Modified-Since` Request Header.
+
 ```
 If-Modified-Since: Wed, 21 Oct 2021 07:30:00 GMT
 ```
@@ -335,40 +402,37 @@ The Client may then use the `If-None-Match` header to ask whether the State has 
 ```
 If-None-Match: "33a64df551425fcc55e4d42a148795d9f25f89d4"
 ```
-And if it hasn't, the Server will answer with an empty body and a Status of `304 Not Modified`
+And if it hasn't, the Server will answer with an empty body and a Status of `304 Not Modified` so that the Client uses its cached version.
 
 ## Enabling Safe API Change
 First of all, you want to make the participating Machines Robust to API change by following the Robustness Principle.
 
 > ⚠️ Be conservative in sending stuff, but liberal in receiving it.
 
-Then you may choose an API Change Strategy
+Then there are a couple Strategies how to make Changes to an API.
 
 ### API Versioning
-Every non-compatible change creates a new Version through URI Path (e.g. /api/V1) or Content-Type (e.g. application/vnd.v1+json).
+Every non-compatible change creates a new Version via URI (e.g. /api/V1) or Content-Type (e.g. application/vnd.v1+json).
 Fits best when you have lots of clients (e.g. Google Maps API).
-May use a schema like OpenAPI.
-Downside: You have to maintain all those versions.
+**Downside**: You have to maintain all those versions.
 
 ### Consumer Driven Contracts
-Every Client defines their Interactions in the Form of Contracts, which are used to verify both the Servers and the Clients behaviour in isolation and check whether they can communicate.
-Works best in MicroService and MacroService Architectures as there are reasonable amounts of services developed by different teams that can be integrated this way.
+Every Client defines their Interactions in the Form of Contracts, which are used to verify both the Server and the Client in isolation to check whether they can communicate with each other.
+Works nicely in Micro Service and Macro Service Architectures as there are reasonable amounts of services developed by different teams that can be integrated this way.
 Is a no-schema approach.
 
 ### Just Change It
 Simplest and preferable solution. 
 Fits best when you own both the Server and the Client within the same Development Team.
 Can use a schema, but don't have to.
-May use Parallel Change If Server and Client are independently deployed.
-
-
+May use Parallel Change If Server and Client are deployed independently.
 
 ## Tooling
 ### Clients
 
 #### Curl
 
-The Classic Command Line Client. Not recommended - use HTTPie instead.
+The Classic Command Line Client. Not recommended. Use HTTPie instead.
 
 #### HTTPie ([httpie.org](https://httpie.org/))
 
