@@ -13,8 +13,6 @@ Each Client Server interaction consists of both
 - a Request which the Client sends to the Server 
 - and after that a Response the Server answers back to the Client.
 
-> ⚠ The Request Model does not have to be the same as the Response Model!
-
 ```
 Request:
 <Initializing Line> 
@@ -206,6 +204,8 @@ PUT http://hsp.com/api/classes/4A
 ```
 Notice how the Response Body is empty.
 We can use 204 whenever a Body is superfluous.
+
+> ⚠ The response-body to a GET request does not have to perfectly equal the request-body that was sent to create it. For example: A Server may add additional meta-data like who created it and when to the response.
 
 #### POST to add a new entity to a collection
 
