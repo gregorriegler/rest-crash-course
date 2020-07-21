@@ -5,7 +5,7 @@ Representational State Transfer
 
 An architectural style to transfer State by its representation from one Machine to another in a Distributed System.
 Developed 1994-2000 by Roy Fielding. 
-Idea of RESTful much younger ~2014, but mostly misunderstood.
+Idea of RESTful much younger ~2014, and mostly misunderstood.
 
 ## HTTP Request / Response Model
 Each Client Server interaction consists of both
