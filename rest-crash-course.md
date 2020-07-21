@@ -74,12 +74,12 @@ Could look similar to this: A POST request with some data to invoke a remote pro
 ```
 POST http://hsp.com/api
 {
-	"action": "createClass",
-	"content": {
-		"id": "4A",
+    "action": "createClass",
+    "content": {
+        "id": "4A",
         "teacher": "Max",
-		"room": 123
-	}
+        "room": 123
+    }
 }
 ------------------------------
 200 OK
@@ -108,14 +108,14 @@ E.g.:
 ```
 POST http://hsp.com/api/classes
 {
-	"action": "read",
-	"content": [
-		{
-			"id": "4A",
-			"teacher": "Max",
-        	"room": 123
-		}
-	]
+    "action": "read",
+    "content": [
+        {
+            "id": "4A",
+            "teacher": "Max",
+            "room": 123
+        }
+    ]
 }
 ------------------------------
 200 OK
@@ -133,8 +133,8 @@ POST http://hsp.com/api/classes/4A
 ------------------------------
 200 OK
 "content": {
-	"id": "4A",
-	"teacher": "Max",
+    "id": "4A",
+    "teacher": "Max",
     "room": 123
 }
 ```
