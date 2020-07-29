@@ -128,7 +128,7 @@ We can access a single Entity by providing an id.
 ```
 POST http://hsp.com/api/classes/4A
 {
-	"action": "read",
+    "action": "read",
 }
 ------------------------------
 200 OK
@@ -156,7 +156,7 @@ GET, POST, PUT, PATCH, DELETE, HEAD, ...
 
 #### GET for reading
 
-> ☑ save - ☑ cache-able - ☑ idempotent
+> ☑ safe - ☑ cache-able - ☑ idempotent
 
 Notice the empty body
 
@@ -187,7 +187,7 @@ GET http://hsp.com/api/classes?teacher=Max
 
 #### PUT for changing state on the server
 
-> ☐ save - ☐ cache-able - ☑ idempotent
+> ☐ safe - ☐ cache-able - ☑ idempotent
 
 Stores the supplied entity under the given URI.
 Used for create or update. In case of create, it's the Client who defines the Id.
@@ -209,7 +209,7 @@ We can use 204 whenever a Body is superfluous.
 
 #### POST to add a new entity to a collection
 
-> ☐ save - ☐ cache-able - ☐ idempotent
+> ☐ safe - ☐ cache-able - ☐ idempotent
 
 ```
 POST http://hsp.com/api/rooms
@@ -235,7 +235,7 @@ Another Style would be to return a body.
 ```
 #### DELETE to delete an entity
 
-> ☐ save - ☐ cache-able - ☑ idempotent
+> ☐ safe - ☐ cache-able - ☑ idempotent
 
 ```
 DELETE http://hsp.com/api/rooms/1
@@ -244,7 +244,7 @@ DELETE http://hsp.com/api/rooms/1
 ```
 #### PATCH for partial updates
 
-> ☐ save - ☐ cache-able - ☐ idempotent
+> ☐ safe - ☐ cache-able - ☐ idempotent
 
 Use it to only change the given fields, and leave all others the same.
 
