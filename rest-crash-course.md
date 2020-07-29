@@ -374,7 +374,7 @@ It's not uncommon for an API to support multiple formats for a single Resource.
 Even when its usually transfered as JSON, we may also create a PDF Representation for printing or XLS to enable a user to make manual calculations.
 
 ## HTTP Caching
-One of HTTPs greatest strength is its caching.
+One of HTTPs greatest strengths is its caching.
 
 ### Expiration
 A Server may tell a client when a downloaded State expires by providing an `Expires` header.
