@@ -1,5 +1,5 @@
 RESTful ShoppingCart
-- Jedes Produkt hat eine productId
+- Jedes Produkt hat eine productId //TODO: Sollte URI sein
 - Ich kann neue Produkte in den Shopping Cart hinzufügen
 - Ich kann Produkte aus dem Shopping Cart löschen
 - Ich kann mir alle Produkte in meinem ShoppingCart anzeigen
