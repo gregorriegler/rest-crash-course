@@ -47,6 +47,26 @@ Set-Cookie: NID=204=spUoQuJnONBhc7ba46s1td58Vwe9vqbbpKuU3Kk1OW01vurrueyo; expire
 
 <!doctype html><html itemscope="" itemtype="http://schema.org/WebPage" lang="de-AT"><head><meta content="text/html; charset=UTF-8" http-equiv="Content-Type"> ... html continues ...
 ```
+## Common HTTP Status Codes
+- **2xx Success**
+  - 200 OK
+  - 201 Created
+  - 204 No Content
+- **3xx Redirection**
+  - 301 Moved Permanently
+  - 303 See Other (Call Location with GET)
+  - 304 Not Modified (Use Cache)
+- **4xx Error, Client fucked up**
+  - 400 Bad Request
+  - 401 Unauthorized (Not Authenticated)
+  - 403 Forbidden (Authenticated, but not Authorized)
+  - 404 Not Found
+  - 405 Method Not Allowed
+  - 406 Not Acceptable
+  - 418 I'm a teapot 😁
+- **5xx Error, Server fucked up**
+  - 500 Internal Server Error
+  - 503 Service Unavailable
 
 ## Strictly Stateless
 Each request must contain all information necessary to fulfill it.
@@ -327,27 +347,6 @@ GET http://hsp.com/api/classes
     }
 ]
 ```
-
-## Common HTTP Status Codes
-- **2xx Success**
-  - 200 OK
-  - 201 Created
-  - 204 No Content
-- **3xx Redirection**
-  - 301 Moved Permanently
-  - 303 See Other (Call Location with GET)
-  - 304 Not Modified (Use Cache)
-- **4xx Error, Client fucked up**
-  - 400 Bad Request
-  - 401 Unauthorized (Not Authenticated)
-  - 403 Forbidden (Authenticated, but not Authorized)
-  - 404 Not Found
-  - 405 Method Not Allowed
-  - 406 Not Acceptable
-  - 418 I'm a teapot 😁
-- **5xx Error, Server fucked up**
-  - 500 Internal Server Error
-  - 503 Service Unavailable
 
 ## Content Negotiation
 State can be represented in many formats, JSON is just one of them.
