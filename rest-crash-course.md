@@ -406,9 +406,9 @@ And if it hasn't, the Server will answer with an empty body and a Status of `304
 ## Enabling Safe API Change
 First of all, you want to make the participating Machines Robust to API change by following the Robustness Principle.
 
-> ⚠️ Be conservative in sending stuff, but liberal in receiving it.
+> ⚠️ Be conservative in what you send, but liberal in what you can receive.
 
-Then there are a couple Strategies how to make Changes to an API.
+Then there are a couple strategies how to make changes to an API.
 
 ### API Versioning
 Every non-compatible change creates a new Version via URI (e.g. /api/V1) or Content-Type (e.g. application/vnd.v1+json).
