@@ -178,7 +178,7 @@ GET, POST, PUT, PATCH, DELETE, HEAD, ...
 
 > ☑ safe - ☑ cache-able - ☑ idempotent
 
-Notice the empty body
+Notice the empty request-body
 
 ```
 GET http://hsp.com/api/classes/4A
