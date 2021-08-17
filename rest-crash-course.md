@@ -68,6 +68,8 @@ Set-Cookie: NID=204=spUoQuJnONBhc7ba46s1td58Vwe9vqbbpKuU3Kk1OW01vurrueyo; expire
   - 500 Internal Server Error
   - 503 Service Unavailable
 
+[List of Status Codes](https://webconcepts.info/concepts/http-status-code/)
+
 ## Strictly Stateless
 Each request must contain all information necessary to fulfill it.
 The server never relies on any information from a previous request (This excludes Persistent State).
